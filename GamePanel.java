@@ -13,7 +13,6 @@ public class GamePanel extends JPanel implements ActionListener{
     ImageIcon notePic;
     JLabel noteLabel;
     GamePanel(){
-        // this.setLayout(new BorderLayout());
         this.setLayout(null);
         rand = new Random();
         this.setPreferredSize(new Dimension(SCREEN_WIDTH,SCREEN_HEIGHT));//panel size
@@ -21,16 +20,18 @@ public class GamePanel extends JPanel implements ActionListener{
         this.setFocusable(true);
         this.addMouseListener(new MyMouseAdapter());
 
+        CalcNote.init();
+
         JLabel keyboardLabel = makeKeyboard();
-        keyboardLabel.setBounds(175, 460, 850, 240); // Example bounds
+        keyboardLabel.setBounds(175, 460, 850, 240); 
         this.add(keyboardLabel);
 
         JButton rollButton = makeRoll();
-        rollButton.setBounds(550, 360, 117, 29); // Previously set
+        rollButton.setBounds(550, 360, 117, 29); 
         this.add(rollButton);
 
         JLabel noteLabel = makeNote();
-        noteLabel.setBounds(450, 40, 300, 300); // Initial position
+        noteLabel.setBounds(450, 40, 300, 300); 
         this.add(noteLabel);
 
         startGame();
@@ -74,19 +75,28 @@ public class GamePanel extends JPanel implements ActionListener{
         notePic = new ImageIcon(getClass().getResource("graphics/notes/" + noteNum + ".png"));
         Image scalingImage = notePic.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
         ImageIcon scaledIcon = new ImageIcon(scalingImage);
-        noteLabel.setIcon(scaledIcon); // Update the label with new icon
-        noteLabel.revalidate(); // Suggest to the layout manager that the layout should be redone
-        repaint(); // Repaint the panel to reflect changes
+        noteLabel.setIcon(scaledIcon); 
+        noteLabel.revalidate(); 
+        repaint();
 
     }
     public class MyMouseAdapter extends MouseAdapter{
         @Override
         public void mousePressed(MouseEvent e){
-            e.getLocationOnScreen();
-                int xVal = e.getX();
-                int yVal = e.getY();
-            System.out.println("X:" + xVal + ", Y:" + yVal);
+            // e.getLocationOnScreen();
+            //     int xVal = e.getX();
+            //     int yVal = e.getY();
+            // System.out.println("X:" + xVal + ", Y:" + yVal);
+
+            
+            int xVal = e.getX();
+            int yVal = e.getY();
+            for (Rectangle key : CalcNote.noteMap.keySet()) {
+                if (key.contains(xVal, yVal)) {
+                    System.out.println("Note: " + CalcNote.noteMap.get(key)); // Print the note corresponding to the clicked area
+                    break; // Stop checking after the first match
+                }
+            }
         }
     }
 }
-//cut up the keyboard in photoshop and do each one
