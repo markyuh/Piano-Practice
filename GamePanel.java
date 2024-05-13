@@ -57,6 +57,10 @@ public class GamePanel extends JPanel implements ActionListener{
     public JLabel makeNote(){
         noteLabel = new JLabel();
         noteLabel.setBounds(100, 200, 300, 300); 
+        notePic = new ImageIcon(getClass().getResource("graphics/notes/0.png"));
+        Image scalingImage = notePic.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scalingImage);
+        noteLabel.setIcon(scaledIcon);
         return noteLabel;
     }
     public void paintComponent(Graphics g){
@@ -90,10 +94,14 @@ public class GamePanel extends JPanel implements ActionListener{
                 if (key.contains(xVal, yVal)) {
                     String clickedNote = CalcNote.noteMap.get(key);
                     String expectedNote = NoteMap.numberToNote.get(noteNum);
-                    
+                    if (expectedNote == null) {
+                        System.out.println("Please roll a note first.");
+                        break;
+                    }
                     if (clickedNote.equals(expectedNote)) {
                         System.out.println("Correct!");
-                    } else {
+                    }
+                    else {
                         System.out.println("Incorrect! Expected: " + expectedNote + ", but clicked: " + clickedNote);
                     }
                     break; 
