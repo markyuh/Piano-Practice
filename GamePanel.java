@@ -83,20 +83,37 @@ public class GamePanel extends JPanel implements ActionListener{
     public class MyMouseAdapter extends MouseAdapter{
         @Override
         public void mousePressed(MouseEvent e){
+            int xVal = e.getX();
+            int yVal = e.getY();
+
+            for (Rectangle key : CalcNote.noteMap.keySet()) {
+                if (key.contains(xVal, yVal)) {
+                    String clickedNote = CalcNote.noteMap.get(key);
+                    String expectedNote = NoteMap.numberToNote.get(noteNum);
+                    
+                    if (clickedNote.equals(expectedNote)) {
+                        System.out.println("Correct!");
+                    } else {
+                        System.out.println("Incorrect! Expected: " + expectedNote + ", but clicked: " + clickedNote);
+                    }
+                    break; 
+                }
+            }
+
             // e.getLocationOnScreen();
             //     int xVal = e.getX();
             //     int yVal = e.getY();
             // System.out.println("X:" + xVal + ", Y:" + yVal);
 
             
-            int xVal = e.getX();
-            int yVal = e.getY();
-            for (Rectangle key : CalcNote.noteMap.keySet()) {
-                if (key.contains(xVal, yVal)) {
-                    System.out.println("Note: " + CalcNote.noteMap.get(key)); // Print the note corresponding to the clicked area
-                    break; // Stop checking after the first match
-                }
-            }
+            // int xVal = e.getX();
+            // int yVal = e.getY();
+            // for (Rectangle key : CalcNote.noteMap.keySet()) {
+            //     if (key.contains(xVal, yVal)) {
+            //         System.out.println("Note: " + CalcNote.noteMap.get(key)); // Print the note corresponding to the clicked area
+            //         break; // Stop checking after the first match
+            //     }
+            // }
         }
     }
 }

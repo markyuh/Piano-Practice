@@ -86,8 +86,4 @@ public class CalcNote {
 
 
     }
-    public static void main(String[] args) {
-    }
-
-
 }
