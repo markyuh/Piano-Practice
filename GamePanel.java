@@ -7,11 +7,18 @@ import java.util.Random;
 public class GamePanel extends JPanel implements ActionListener{
     static final int SCREEN_WIDTH = 1200;
     static final int SCREEN_HEIGHT = 700;
+    private Image checkMarkImage;
+    private Image xMarkImage;
     boolean running = false;
     Random rand;
     int noteNum;
     ImageIcon notePic;
     JLabel noteLabel;
+    private boolean showFeedback = false;
+    private Image feedbackImage;
+    private static final int FEEDBACK_X = 800;
+    private static final int FEEDBACK_Y = 100;
+
     GamePanel(){
         this.setLayout(null);
         rand = new Random();
@@ -33,6 +40,11 @@ public class GamePanel extends JPanel implements ActionListener{
         JLabel noteLabel = makeNote();
         noteLabel.setBounds(450, 40, 300, 300); 
         this.add(noteLabel);
+
+        ImageIcon checkMarkIcon = new ImageIcon(getClass().getResource("graphics/CheckMark.png"));
+        checkMarkImage = checkMarkIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+        ImageIcon xMarkIcon = new ImageIcon(getClass().getResource("graphics/x.png"));
+        xMarkImage = xMarkIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
 
         startGame();
     }
@@ -66,6 +78,9 @@ public class GamePanel extends JPanel implements ActionListener{
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         draw(g);
+        if (showFeedback && feedbackImage != null) {
+            g.drawImage(feedbackImage, FEEDBACK_X, FEEDBACK_Y, this);
+        }
     }
     public void draw(Graphics g){
         g.setFont(new Font("Ink Free",Font.BOLD,30) );
@@ -98,12 +113,18 @@ public class GamePanel extends JPanel implements ActionListener{
                         System.out.println("Please roll a note first.");
                         break;
                     }
+                    showFeedback = true;
+        
+
                     if (clickedNote.equals(expectedNote)) {
+                        feedbackImage = checkMarkImage;
                         System.out.println("Correct!");
                     }
                     else {
+                        feedbackImage = xMarkImage;
                         System.out.println("Incorrect! Expected: " + expectedNote + ", but clicked: " + clickedNote);
                     }
+                    repaint();
                     break; 
                 }
             }
