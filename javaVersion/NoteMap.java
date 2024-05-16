@@ -1,4 +1,4 @@
-package PianoGame;
+package PianoGame.javaVersion;
 import java.util.HashMap;
 
 public class NoteMap {

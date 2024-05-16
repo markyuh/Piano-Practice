@@ -1,4 +1,4 @@
-package PianoGame;
+package PianoGame.javaVersion;
 import java.awt.Rectangle;
 import java.util.HashMap;
 public class CalcNote {
