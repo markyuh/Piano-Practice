@@ -1,9 +1,9 @@
-package PianoGame;
+package PianoGame.javaVersion;
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;//might be able to remove
+import javax.swing.border.EmptyBorder;
 import java.util.Random;
 import javax.swing.Timer;
 
@@ -12,7 +12,7 @@ public class GamePanel extends JPanel implements ActionListener {
     static final int SCREEN_HEIGHT = 700;
     private Image checkMarkImage;
     private Image xMarkImage;
-    boolean running = false;
+    private JButton rollButton;
     Random rand;
     int noteNum;
     ImageIcon notePic;
@@ -23,7 +23,7 @@ public class GamePanel extends JPanel implements ActionListener {
     private static final int FEEDBACK_Y = 100;
     private String lastClickedNote = "";
     private boolean wasLastNoteCorrect = false;
-    private JButton rollButton;
+    private boolean canClick = true; 
 
     GamePanel() {
         this.setLayout(null);
@@ -54,17 +54,12 @@ public class GamePanel extends JPanel implements ActionListener {
 
     }
 
-    public void startGame() {
-        running = true;
-    }
-
     public JLabel makeKeyboard() {
         ImageIcon originalImage = new ImageIcon(getClass().getResource("graphics/Keyboard.png"));
         Image scalingImage = originalImage.getImage().getScaledInstance(850, 240, Image.SCALE_SMOOTH);
         ImageIcon image = new ImageIcon(scalingImage);
         JLabel displayField = new JLabel(image);
         displayField.setBorder(new EmptyBorder(0, 0, 40, 0));
-
         return displayField;
     }
 
@@ -87,7 +82,6 @@ public class GamePanel extends JPanel implements ActionListener {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        draw(g);
         if (showFeedback && feedbackImage != null) {
             g.drawImage(feedbackImage, FEEDBACK_X, FEEDBACK_Y, this);
             if (wasLastNoteCorrect) {
@@ -98,52 +92,31 @@ public class GamePanel extends JPanel implements ActionListener {
             g.setFont(new Font("Arial", Font.BOLD, 50));
             g.drawString(lastClickedNote, FEEDBACK_X + 135, FEEDBACK_Y - 20);
         }
-        }
-    
-
-    public void draw(Graphics g) {
-        g.setFont(new Font("Ink Free", Font.BOLD, 30));
-        FontMetrics metrics = getFontMetrics(g.getFont());
-        g.drawString("Score: ", (SCREEN_WIDTH - metrics.stringWidth("Score :")) / 2, g.getFont().getSize());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == rollButton) {
-            if (!running) {
-                running = true;
-                rollButton.setVisible(false); // Make button invisible after click
-    
-                // Move the game starting logic here
-                rand = new Random();
-                noteNum = rand.nextInt(17) + 1; // Assume you have 17 different notes
-                notePic = new ImageIcon(getClass().getResource("graphics/notes/" + noteNum + ".png"));
-                Image scalingImage = notePic.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-                ImageIcon scaledIcon = new ImageIcon(scalingImage);
-                noteLabel.setIcon(scaledIcon);
-                noteLabel.revalidate();
-                repaint();
-            }
+            rollButton.setVisible(false);
+            rand = new Random();
+            noteNum = rand.nextInt(17) + 1;
+            notePic = new ImageIcon(getClass().getResource("graphics/notes/" + noteNum + ".png"));
+            Image scalingImage = notePic.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+            ImageIcon scaledIcon = new ImageIcon(scalingImage);
+            noteLabel.setIcon(scaledIcon);
+            noteLabel.revalidate();
+            repaint();
         }
-        // }
-        // rand = new Random();
-        // noteNum = rand.nextInt(17) + 1;
-        // notePic = new ImageIcon(getClass().getResource("graphics/notes/" + noteNum + ".png"));
-        // Image scalingImage = notePic.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-        // ImageIcon scaledIcon = new ImageIcon(scalingImage);
-        // noteLabel.setIcon(scaledIcon);
-        // noteLabel.revalidate();
-        // repaint();
-
     }
 
     public class MyMouseAdapter extends MouseAdapter {
         private Timer timer;
+
         public MyMouseAdapter() {
             timer = new Timer(2000, e -> reroll());
-            timer.setRepeats(false);  // Ensure the timer only fires once per click
+            timer.setRepeats(false); 
         }
-    
+
         private void reroll() {
             noteNum = rand.nextInt(17) + 1;
             notePic = new ImageIcon(getClass().getResource("graphics/notes/" + noteNum + ".png"));
@@ -152,17 +125,20 @@ public class GamePanel extends JPanel implements ActionListener {
             noteLabel.setIcon(scaledIcon);
             noteLabel.revalidate();
             repaint();
-    
-            showFeedback = false; 
+
+            showFeedback = false;
+            canClick = true; 
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
+            if (!canClick) {
+                return;
+            }
+
             int xVal = e.getX();
             int yVal = e.getY();
-
             for (Rectangle key : CalcNote.noteMap.keySet()) {
-
                 if (key.contains(xVal, yVal)) {
                     String clickedNote = CalcNote.noteMap.get(key);
                     String expectedNote = NoteMap.numberToNote.get(noteNum);
@@ -171,15 +147,17 @@ public class GamePanel extends JPanel implements ActionListener {
                     feedbackImage = clickedNote.equals(expectedNote) ? checkMarkImage : xMarkImage;
                     wasLastNoteCorrect = clickedNote.equals(expectedNote);
                     if (clickedNote.equals(expectedNote)) {
-                        System.out.println("Correct!");
+                        // System.out.println("Correct!");
+                        canClick = false;
                         timer.start();
                     } else {
-                        System.out.println("Incorrect! Expected: " + expectedNote + ", but clicked: " + clickedNote);
+                        // System.out.println("Incorrect! Expected: " + expectedNote + ", but clicked: " + clickedNote);
                     }
                     repaint();
                     break;
                 }
             }
         }
+
     }
 }
