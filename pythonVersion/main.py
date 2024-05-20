@@ -87,11 +87,26 @@ def draw_piano(whites, blacks):
 def draw_note():
         note_number = random.randint(36,47) #0-87 bc 88 notes in the list
         note = piano_notes[note_number]
-        displayImage = pygame.image.load(f'assets/graphics/notes/{note}.png')
-        
+        displayImage = pygame.image.load(f'assets/graphics/note_png/{note}.png')
         return displayImage, note
 
 note_image, note_name = draw_note() #calling drawnote outside of the maiin loop so it doesnt run 60times/sec
+
+# Define a custom event for updating the note
+NOTE_UPDATE_EVENT = pygame.USEREVENT + 1
+
+# Load images for correct and incorrect notes
+correct_image = pygame.transform.scale(pygame.image.load('assets/graphics/feedback/CheckMark.png'), (200,200))
+incorrect_image = pygame.transform.scale(pygame.image.load('assets/graphics/feedback/x.png'), (200,200))
+
+# Prepare text rendering
+correct_text = font.render("Correct!", True, 'green')
+incorrect_text = font.render("Wrong", True, 'red')
+
+# Variables to track if correct or incorrect note was clicked
+show_correct = False
+show_incorrect = False
+message_timer = 0
 
 running = True
 while running:
@@ -99,6 +114,20 @@ while running:
     screen.fill('#171717')
     white_keys, black_keys, active_whites, active_blacks = draw_piano(active_whites, active_blacks)
     screen.blit(pygame.transform.scale(note_image, (600, 329)), (460, 20))
+
+    if show_correct:
+            screen.blit(correct_image, (1100, 100))
+            screen.blit(correct_text, (1125, 280))
+            message_timer -= 1
+            if message_timer <= 0:
+                show_correct = False
+    elif show_incorrect:
+        screen.blit(incorrect_image, (200, 100))
+        screen.blit(incorrect_text, (235, 280))
+        message_timer -= 1
+        if message_timer <= 0:
+            show_incorrect = False
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -112,20 +141,26 @@ while running:
                     active_blacks.append([i, 30])#30 is the timer saying how long we want the rectangle to be active for
                     #plays for half a second because of our 60 fps, 30 scans is half a second
                     if black_keys[i].name==note_name:
-                       print("Correct black")
-
+                       pygame.time.set_timer(NOTE_UPDATE_EVENT, 2000)
+                       show_correct = True
+                       message_timer = 119
                     else:
-                        print("Correct black")
-                        print(black_keys[i].name)
+                        show_incorrect = True
+                        message_timer = 60
             for i in range(len(white_keys)):
                 if white_keys[i].rect.collidepoint(event.pos) and not black_key:
                     white_sounds[i].play(0,1000)
                     active_whites.append([i,30])
-                    if white_keys[i].name==note_name:
-                       print("Correct white")
+                    if white_keys[i].name == note_name:
+                       pygame.time.set_timer(NOTE_UPDATE_EVENT, 2000)
+                       show_correct = True
+                       message_timer = 119
                     else:
-                        print("Correct white")
-
+                        show_incorrect = True
+                        message_timer = 60
+        if event.type == NOTE_UPDATE_EVENT:
+            note_image, note_name = draw_note()  # Update the note image and name
+            pygame.time.set_timer(NOTE_UPDATE_EVENT, 0)  # Stop the timer
 
     pygame.display.flip()#push all visual elements onto the screen in the correct order
 pygame.quit()
