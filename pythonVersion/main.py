@@ -85,7 +85,7 @@ def draw_piano(whites, blacks):
     return white_rects, black_rects, whites, blacks
 
 def draw_note():
-        note_number = random.randint(36,47) #0-87 bc 88 notes in the list
+        note_number = random.randint(36,67) #0-87 bc 88 notes in the list
         note = piano_notes[note_number]
         displayImage = pygame.image.load(f'assets/graphics/note_png/{note}.png')
         return displayImage, note
