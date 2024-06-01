@@ -17,14 +17,12 @@ rect_width = 29
 WIDTH = 52 * rect_width #largest width possible for my monitor
 HEIGHT =  800
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
-pygame.display.set_caption("Just the piano for now")
+pygame.display.set_caption("Piano Game")
 active_whites = []
 active_blacks = []
 white_sounds= []
 black_sounds = []
 
-# right_hand = pl.right_hand
-# left_hand = pl.left_hand
 piano_notes = pl.piano_notes
 white_notes = pl.white_notes
 black_notes = pl.black_notes
@@ -35,11 +33,94 @@ for i in range (len(white_notes)):
 
 for i in range (len(black_notes)):
     black_sounds.append(mixer.Sound(f'assets/notes/{black_notes[i]}.wav'))
+
 class Key:
     def __init__(self, rect, name):
         self.rect = rect
         self.name = name
-        
+
+class Button:
+    def __init__(self, x, y, width, height, text):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+
+    def draw(self, screen, font):
+        pygame.draw.rect(screen, '#C3C3C3', self.rect, 0)
+        text_surface = font.render(self.text, True, 'white')
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        screen.blit(text_surface, text_rect)
+
+    def is_clicked(self, pos):
+        return self.rect.collidepoint(pos)
+
+def splash_screen():
+    splash_running = True
+    initial_x = -200  # Starting off-screen to the left
+    target_x = 650  # Final position for buttons
+    title_target_x = 500  # Final position for the title
+    clef_target_x = 550  # Final position for the clef question
+    exit_x = WIDTH + 200  # Position to move elements off-screen to the right
+    animation_speed = 60  # How fast to move elements per frame
+
+    buttons = [
+        Button(initial_x, 400, 200, 40, 'Treble'),
+        Button(initial_x, 460, 200, 40, 'Bass'),
+        Button(initial_x, 520, 200, 40, 'Both')
+    ]
+    title_text = "Hello! Welcome to the game!"
+    clef_text = "Which clef would you like to practice?"
+    title_x = initial_x
+    clef_x = initial_x
+
+    animating_out = False  
+
+    while splash_running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for button in buttons:
+                    if button.is_clicked(event.pos):
+                        print(f"{button.text} clef selected!")
+                        animating_out = True
+
+        screen.fill('#171717')
+
+        if not animating_out:
+            title_x = min(title_x + animation_speed, title_target_x)
+            clef_x = min(clef_x + animation_speed, clef_target_x)
+
+            title_surface = font.render(title_text, True, 'white')
+            screen.blit(title_surface, (title_x, 200))
+            clef_surface = medium_font.render(clef_text, True, 'white')
+            screen.blit(clef_surface, (clef_x, 300))
+
+            for button in buttons:
+                button.rect.x = min(button.rect.x + animation_speed, target_x)
+                button.draw(screen, medium_font)
+        else:
+            # Move all elements to the right until they are off-screen
+            if title_x < exit_x:
+                title_x += animation_speed  
+                clef_x += animation_speed 
+                for button in buttons:
+                    button.rect.x += animation_speed 
+            else:
+                pygame.time.delay(60)
+                return button.text  # Return after animation is complete
+
+            # Draw elements moving out
+            title_surface = font.render(title_text, True, 'white')
+            screen.blit(title_surface, (title_x, 200))
+            clef_surface = medium_font.render(clef_text, True, 'white')
+            screen.blit(clef_surface, (clef_x, 300))
+            for button in buttons:
+                button.draw(screen, medium_font)
+
+        pygame.display.flip()
+        timer.tick(fps)
+
 def draw_piano(whites, blacks):
     white_rects = []
     for i in range (52): #number of white keys on the keyboard
@@ -109,6 +190,7 @@ show_incorrect = False
 message_timer = 0
 
 running = True
+selected_clef = splash_screen()
 while running:
     timer.tick(fps)
     screen.fill('#171717')
