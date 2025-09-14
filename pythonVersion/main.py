@@ -84,6 +84,7 @@ def splash_screen():
                     if button.is_clicked(event.pos):
                         print(f"{button.text} clef selected!")
                         animating_out = True
+                        return button.text
 
         screen.fill('#171717')
 
@@ -119,7 +120,7 @@ def splash_screen():
                 button.draw(screen, medium_font)
 
         pygame.display.flip()
-        timer.tick(fps)
+        timer.tick(fps) 
 
 def draw_piano(whites, blacks):
     white_rects = []
@@ -165,13 +166,22 @@ def draw_piano(whites, blacks):
 
     return white_rects, black_rects, whites, blacks
 
-def draw_note():
-        note_number = random.randint(36,67) #0-87 bc 88 notes in the list
+def draw_note(clef): #add 12-38
+        #if bass clef is selected, choose notes 12-38
+        #if treble is selected, choose 39,67
+        #if both is selected, choose 12-67
+        #note_number = random.randint(39,67) #0-87 bc 88 notes in the list
+        if clef == 'Bass':
+            note_number = random.randint(12, 38)
+        elif clef == 'Treble':
+            note_number = random.randint(39, 67)
+        else:  # Both
+            note_number = random.randint(12, 67)
         note = piano_notes[note_number]
         displayImage = pygame.image.load(f'assets/graphics/note_png/{note}.png')
         return displayImage, note
 
-note_image, note_name = draw_note() #calling drawnote outside of the maiin loop so it doesnt run 60times/sec
+#note_image, note_name = draw_note(selected_clef) #calling drawnote outside of the main loop so it doesnt run 60times/sec
 
 # Define a custom event for updating the note
 NOTE_UPDATE_EVENT = pygame.USEREVENT + 1
@@ -191,6 +201,7 @@ message_timer = 0
 
 running = True
 selected_clef = splash_screen()
+note_image, note_name = draw_note(selected_clef)  # ✅ Now it's safe
 while running:
     timer.tick(fps)
     screen.fill('#171717')
@@ -241,7 +252,7 @@ while running:
                         show_incorrect = True
                         message_timer = 60
         if event.type == NOTE_UPDATE_EVENT:
-            note_image, note_name = draw_note()  # Update the note image and name
+            note_image, note_name = draw_note(selected_clef)  # Update the note image and name
             pygame.time.set_timer(NOTE_UPDATE_EVENT, 0)  # Stop the timer
 
     pygame.display.flip()#push all visual elements onto the screen in the correct order
