@@ -193,6 +193,7 @@ incorrect_image = pygame.transform.scale(pygame.image.load('assets/graphics/feed
 # Prepare text rendering
 correct_text = font.render("Correct!", True, 'green')
 incorrect_text = font.render("Wrong", True, 'red')
+back_button = Button(20, 20, 100, 40, "Back")
 
 # Variables to track if correct or incorrect note was clicked
 show_correct = False
@@ -207,6 +208,7 @@ while running:
     screen.fill('#171717')
     white_keys, black_keys, active_whites, active_blacks = draw_piano(active_whites, active_blacks)
     screen.blit(pygame.transform.scale(note_image, (600, 329)), (460, 20))
+    back_button.draw(screen, medium_font)
 
     if show_correct:
             screen.blit(correct_image, (1100, 100))
@@ -226,6 +228,13 @@ while running:
             running = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.is_clicked(event.pos):
+                # Reset to splash screen
+                selected_clef = splash_screen()
+                note_image, note_name = draw_note(selected_clef)
+                show_correct = False
+                show_incorrect = False
+                message_timer = 0
             black_key = False #if a black note is played, we have to make sure we play the black key and not the white keys below it, since black keys are just black rectangles over the white rectangles we draw.
             for i in range(len(black_keys)):#list of rectangles that we get back from drawpiano
                 if black_keys[i].rect.collidepoint(event.pos): #if it collides w the mouse coordinate
